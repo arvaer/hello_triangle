@@ -6,10 +6,10 @@ AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: All
 # Uncommenting these lines will sometimes result in lines following an
 # if(){} or for(){} block being attached to the end of the block.
-AllowShortIfStatementsOnASingleLine: true
-AllowShortLoopsOnASingleLine: true
-AlwaysBreakAfterDefinitionReturnType: true
-AlwaysBreakAfterReturnType: true
+# AllowShortIfStatementsOnASingleLine: true
+# AllowShortLoopsOnASingleLine: true
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterClass:      true
@@ -27,17 +27,15 @@ BraceWrapping:
   SplitEmptyRecord: false
   SplitEmptyNamespace: false
 ContinuationIndentWidth: 2
-IndentWidth: 4
-TabWidth: 4
 Cpp11BracedListStyle: true
 KeepEmptyLinesAtTheStartOfBlocks: false
 Language:        Cpp
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: All
-PenaltyExcessCharacter: 88
+PenaltyExcessCharacter: 100
 PenaltyReturnTypeOnItsOwnLine: 1
 PointerAlignment: Right
 SortIncludes: false
 SpaceBeforeParens: Never
 SpacesInContainerLiterals: false
-Standard:        Cpp17
+Standard:        Cpp11

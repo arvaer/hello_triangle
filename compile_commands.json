@@ -1,1 +1,17 @@
-[]
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-c",
+      "-std=c++17",
+      "-g",
+      "-gdwarf-4",
+      "-o",
+      "VulkanTest",
+      "main.cpp"
+    ],
+    "directory": "/home/jupi/learning/vulkan",
+    "file": "/home/jupi/learning/vulkan/main.cpp",
+    "output": "/home/jupi/learning/vulkan/VulkanTest"
+  }
+]
