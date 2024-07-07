@@ -39,10 +39,7 @@ VkResult CreateDebugUtilsMessengerEXT(
     {
       return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
     }
-  else
-    {
-      return VK_ERROR_EXTENSION_NOT_PRESENT;
-    }
+  else { return VK_ERROR_EXTENSION_NOT_PRESENT; }
 }
 
 void DestroyDebugUtilsMessengerEXT(VkInstance instance,
@@ -51,19 +48,13 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance,
 {
   auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
     instance, "vkDestroyDebugUtilsMessengerEXT");
-  if(func != nullptr)
-    {
-      func(instance, debugMessenger, pAllocator);
-    }
+  if(func != nullptr) { func(instance, debugMessenger, pAllocator); }
 }
 
 std::vector<char> readFile(const std::string &filename)
 {
   std::ifstream file(filename, std::ios::ate | std::ios::binary);
-  if(!file.is_open())
-    {
-      throw std::runtime_error("failed to open file");
-    }
+  if(!file.is_open()) { throw std::runtime_error("failed to open file"); }
 
   size_t fileSize = (size_t)file.tellg();
   std::vector<char> buffer(fileSize);
@@ -157,10 +148,7 @@ private:
 
   void mainLoop()
   {
-    while(!glfwWindowShouldClose(window))
-      {
-        glfwPollEvents();
-      }
+    while(!glfwWindowShouldClose(window)) { glfwPollEvents(); }
   }
 
   void cleanup()
@@ -259,8 +247,7 @@ private:
 
   void setupDebugMessenger()
   {
-    if(!enableValidationLayers)
-      return;
+    if(!enableValidationLayers) return;
 
     VkDebugUtilsMessengerCreateInfoEXT createInfo;
     populateDebugMessengerCreateInfo(createInfo);
@@ -350,10 +337,7 @@ private:
           = static_cast<uint32_t>(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
       }
-    else
-      {
-        createInfo.enabledLayerCount = 0;
-      }
+    else { createInfo.enabledLayerCount = 0; }
 
     if(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device)
        != VK_SUCCESS)
@@ -405,10 +389,7 @@ private:
         createInfo.queueFamilyIndexCount = 2;
         createInfo.pQueueFamilyIndices = queueFamilyIndices;
       }
-    else
-      {
-        createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-      }
+    else { createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; }
 
     createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
     createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
@@ -582,15 +563,9 @@ private:
         vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface,
                                              &presentSupport);
 
-        if(presentSupport)
-          {
-            indices.presentFamily = i;
-          }
+        if(presentSupport) { indices.presentFamily = i; }
 
-        if(indices.isComplete())
-          {
-            break;
-          }
+        if(indices.isComplete()) { break; }
 
         i++;
       }
@@ -636,10 +611,7 @@ private:
               }
           }
 
-        if(!layerFound)
-          {
-            return false;
-          }
+        if(!layerFound) { return false; }
       }
 
     return true;
