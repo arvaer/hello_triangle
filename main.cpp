@@ -106,6 +106,7 @@ private:
     VkExtent2D swapChainExtent;
 
     std::vector<VkImageView> swapChainImageViews;
+    std::vector<VkFramebuffer> swapChainFramebuffers;
 
     VkRenderPass renderPass;
     VkPipelineLayout pipelineLayout;
@@ -131,6 +132,7 @@ private:
         createImageViews();
         createRenderPass();
         createGraphicsPipeline();
+        createFrameBuffers();
     }
 
     void mainLoop() {
@@ -140,6 +142,9 @@ private:
     }
 
     void cleanup() {
+        for (auto framebuffer: swapChainFramebuffers) {
+            vkDestroyFramebuffer(device, framebuffer, nullptr);
+        }
         vkDestroyPipeline(device, graphicsPipeline, nullptr);
         vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
         vkDestroyRenderPass(device, renderPass, nullptr);
@@ -542,6 +547,8 @@ private:
         }
 
     }
+
+
     void createRenderPass() {
         VkAttachmentDescription colorAttachment { };
         colorAttachment.format = swapChainImageFormat;
@@ -718,6 +725,27 @@ private:
         }
 
         return shaderModule;
+    }
+
+    void createFrameBuffers() {
+        swapChainFramebuffers.resize(swapChainImages.size());
+
+        for (size_t i = 0; i < swapChainImageViews.size(); ++i){
+            VkImageView attachments[] = { swapChainImageViews[i] };
+            VkFramebufferCreateInfo frameBufferInfo { };
+            frameBufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            frameBufferInfo.renderPass = renderPass;
+            frameBufferInfo.attachmentCount = 1;
+            frameBufferInfo.pAttachments = attachments;
+            frameBufferInfo.width = swapChainExtent.width;
+            frameBufferInfo.height = swapChainExtent.height;
+            frameBufferInfo.layers  1;
+
+            if(vkCreateFramebuffer(device, &frameBufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+                throw std::runtime_error("faield to create framebuffer");
+            }
+        }
+
     }
 
 };
