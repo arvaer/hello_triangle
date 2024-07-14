@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-std=c++17",
+      "-g",
+      "-gdwarf-4",
+      "-Ilib",
+      "-c",
+      "-o",
+      "src/main.o",
+      "src/main.c"
+    ],
+    "directory": "/home/jupi/learning/vulkan/c",
+    "file": "/home/jupi/learning/vulkan/c/src/main.c",
+    "output": "/home/jupi/learning/vulkan/c/src/main.o"
+  }
+]
