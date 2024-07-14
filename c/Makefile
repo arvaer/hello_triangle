@@ -1,4 +1,4 @@
-CFLAGS = -std=c++17 -g -gdwarf-4 -Ilib
+CFLAGS =  -g -gdwarf-4 -Ilib
 LDFLAGS = -lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 
 SRC_SOURCES = $(filter-out src/main.c, $(wildcard src/*.c))

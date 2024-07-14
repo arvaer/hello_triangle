@@ -25,13 +25,11 @@ void initVulkan(AppContext* appContext);
 void mainLoop(AppContext* appContext);
 void cleanup(AppContext* appContext);
 
-// __ Vulkan INSTANCE __
-void createInstance(AppContext* appContext);
-
 // ___ GLFW ___
 void initWindow(AppContext* appContext);
 
 void run(AppContext* appContext) {
+    createInstance(appContext);
     initWindow(appContext);
     initVulkan(appContext);
     mainLoop(appContext);
@@ -61,46 +59,6 @@ void initWindow(AppContext* appContext) {
     assert((*appContext).window != NULL);
 }
 
-void createInstance(AppContext* appContext) {
-    RequiredLayers validationLayers = buildRequiredLayers();
-    if (enableValidationLayers &&
-        !checkValidationLayerSupport(&validationLayers)) {
-        appContext->fp_errBack(ILY_FAILED_TO_ENABLE_VALIDATION_LAYERS);
-    }
-
-    VkInstance instance = (VkInstance)malloc(sizeof(VkInstance));
-    VkApplicationInfo appInfo = {};
-    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "Hello Triangle";
-    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.pEngineName = "No Engine";
-    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_0;
-
-    VkInstanceCreateInfo createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    createInfo.pApplicationInfo = &appInfo;
-
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
-
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-    createInfo.enabledExtensionCount = glfwExtensionCount;
-    createInfo.ppEnabledExtensionNames = glfwExtensions;
-    if (enableValidationLayers) {
-        createInfo.enabledLayerCount = (uint32_t)validationLayers.count;
-        createInfo.ppEnabledLayerNames = validationLayers.layerNames;
-    } else {
-        createInfo.enabledLayerCount = 0;
-    }
-
-    if (vkCreateInstance(&createInfo, NULL, (*appContext).instance) !=
-        VK_SUCCESS) {
-        appContext->fp_errBack(ILY_FAILED_TO_CREATE_INSTANCE);
-        exit(1);
-    };
-}
 
 int main() {
     AppContext* appContext = (AppContext*)malloc(sizeof(AppContext));

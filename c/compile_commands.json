@@ -2,7 +2,6 @@
   {
     "arguments": [
       "/usr/bin/g++",
-      "-std=c++17",
       "-g",
       "-gdwarf-4",
       "-Ilib",
