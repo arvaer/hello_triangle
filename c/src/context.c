@@ -7,15 +7,70 @@
 #include <stdlib.h>
 #include <string.h>
 #include <vulkan/vulkan_core.h>
-
-
-
 // __ Validation Layers __
 typedef struct {
     VkLayerProperties* layerNames;
     uint32_t count;
     size_t capacity;
 } AvailableLayers;
+
+typedef struct {
+    const char** layerNames;
+    size_t count;
+    size_t capacity;
+} RequiredLayers;
+
+
+// forward declared stuff
+void populateLayers(RequiredLayers* requiredLayers);
+void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT* debugInfo);
+int checkValidationLayerSupport(RequiredLayers* requiredLayers);
+
+// main logic
+void createInstance(AppContext* appContext) {
+    RequiredLayers validationLayers = {};
+    populateLayers(&validationLayers);
+    if (enableValidationLayers &&
+        !checkValidationLayerSupport(&validationLayers)) {
+        appContext->fp_errBack(ILY_FAILED_TO_ENABLE_VALIDATION_LAYERS);
+    }
+
+    VkApplicationInfo appInfo = {};
+    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    appInfo.pApplicationName = "Hello Triangle";
+    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+    appInfo.pEngineName = "No Engine";
+    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+    appInfo.apiVersion = VK_API_VERSION_1_0;
+
+    VkInstanceCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    createInfo.pApplicationInfo = &appInfo;
+
+    uint32_t glfwExtensionCount = 0;
+    const char** glfwExtensions;
+
+    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+    createInfo.enabledExtensionCount = glfwExtensionCount;
+    createInfo.ppEnabledExtensionNames = glfwExtensions;
+    VkDebugUtilsMessengerCreateInfoEXT debugInfo = {};
+    populateDebugMessengerCreateInfo(&debugInfo);
+    createInfo.pNext = &debugInfo;
+
+    if (enableValidationLayers) {
+        createInfo.enabledLayerCount = (uint32_t)validationLayers.count;
+        createInfo.ppEnabledLayerNames = validationLayers.layerNames;
+    } else {
+        createInfo.enabledLayerCount = 0;
+    }
+
+    if (vkCreateInstance(&createInfo, NULL, &(*appContext).instance) !=
+        VK_SUCCESS) {
+        appContext->fp_errBack(ILY_FAILED_TO_CREATE_INSTANCE);
+        exit(1);
+    };
+}
 
 int checkValidationLayerSupport(RequiredLayers* requiredLayers) {
     printf("Starting validation layer support check.\n");
@@ -64,16 +119,14 @@ int checkValidationLayerSupport(RequiredLayers* requiredLayers) {
     return 1;
 }
 
-RequiredLayers buildRequiredLayers() {
+void populateLayers(RequiredLayers* requiredLayers) {
     // Honestly just going to hard code the desired layers in here.
     // at first I was passing in the args but theres no point
     static const char* validationLayers[] = {"VK_LAYER_KHRONOS_validation"};
     // build required layers struct
-    RequiredLayers requiredLayers = {0};
-    requiredLayers.count = 1;
-    requiredLayers.capacity = 1;
-    requiredLayers.layerNames = validationLayers;
-    return requiredLayers;
+    requiredLayers->count = 1;
+    requiredLayers->capacity = 1;
+    requiredLayers->layerNames = validationLayers;
 }
 
 void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT* debugCreateInfo) {
@@ -88,50 +141,6 @@ void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT* debugC
       VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
       VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     debugCreateInfo->pfnUserCallback = debugCallback;
-}
-
-void createInstance(AppContext* appContext) {
-    RequiredLayers validationLayers = buildRequiredLayers();
-    if (enableValidationLayers &&
-        !checkValidationLayerSupport(&validationLayers)) {
-        appContext->fp_errBack(ILY_FAILED_TO_ENABLE_VALIDATION_LAYERS);
-    }
-
-    VkApplicationInfo appInfo = {};
-    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "Hello Triangle";
-    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.pEngineName = "No Engine";
-    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_0;
-
-    VkInstanceCreateInfo createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    createInfo.pApplicationInfo = &appInfo;
-
-    uint32_t glfwExtensionCount = 0;
-    const char** glfwExtensions;
-
-    glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-    createInfo.enabledExtensionCount = glfwExtensionCount;
-    createInfo.ppEnabledExtensionNames = glfwExtensions;
-    VkDebugUtilsMessengerCreateInfoEXT debugInfo = {};
-    populateDebugMessengerCreateInfo(&debugInfo);
-    createInfo.pNext = &debugInfo;
-
-    if (enableValidationLayers) {
-        createInfo.enabledLayerCount = (uint32_t)validationLayers.count;
-        createInfo.ppEnabledLayerNames = validationLayers.layerNames;
-    } else {
-        createInfo.enabledLayerCount = 0;
-    }
-
-    if (vkCreateInstance(&createInfo, NULL, &(*appContext).instance) !=
-        VK_SUCCESS) {
-        appContext->fp_errBack(ILY_FAILED_TO_CREATE_INSTANCE);
-        exit(1);
-    };
 }
 
 #endif /* ifndef ILY_CONTEXT */

@@ -27,14 +27,7 @@ typedef struct AppContext {
     ErrorCallback fp_errBack;
 } AppContext;
 
-typedef struct {
-    const char** layerNames;
-    size_t count;
-    size_t capacity;
-} RequiredLayers;
 
-int checkValidationLayerSupport(RequiredLayers* requiredLayers);
-RequiredLayers buildRequiredLayers(void);
 void createInstance(AppContext* appContext);
 
 #endif // ILY_CONTEXT_H
