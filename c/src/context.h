@@ -1,10 +1,8 @@
 #ifndef ILY_CONTEXT_H
 #define ILY_CONTEXT_H
-
-#include <stdio.h>
-#include <vulkan/vulkan_core.h>
+#include "ily_errors.h"
 #include <GLFW/glfw3.h>
-#include "../lib/ily_errors.h"
+#include <vulkan/vulkan_core.h>
 
 #ifdef NDEBUG
 const int enableValidationLayers = 0;
@@ -12,23 +10,27 @@ const int enableValidationLayers = 0;
 const int enableValidationLayers = 1;
 #endif
 
-VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-  VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-  VkDebugUtilsMessageTypeFlagsEXT messageType,
-  const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
-    fprintf(stderr, "Validation layer: %s\n", pCallbackData->pMessage);
-
-    return VK_FALSE;
-}
+#define da_append(xs, x)                                                       \
+    do {                                                                       \
+        if (xs.count >= xs.capacity) {                                         \
+            if (xs.capacity == 0) {                                            \
+                xs.capacity = 5;                                               \
+            } else {                                                           \
+                xs.capacity *= 2;                                              \
+                xs.items = realloc(xs.items, xs.capacity * sizeof(*xs.items)); \
+            }                                                                  \
+            xs.items[xs.count++] = x                                           \
+        }                                                                      \
+    } while (0)
 
 typedef struct AppContext {
     GLFWwindow* window;
     VkInstance instance;
+    VkPhysicalDevice physicalDevice;
     ErrorCallback fp_errBack;
 } AppContext;
 
-
 void createInstance(AppContext* appContext);
+void pickPhysicalDevice(AppContext* appContext);
 
 #endif // ILY_CONTEXT_H
-

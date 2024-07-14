@@ -9,16 +9,6 @@
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
-#define da_append(xs, x)                                                       \
-    do {                                                                       \
-        if (xs.count >= xs.capacity) {                                         \
-            if (xs.capacity == 0)                                              \
-                xs.capacity = 5;                                               \
-            else                                                               \
-                xs.capacity *= 2;                                              \
-            xs.items = realloc(xs.items, xs.capacity * sizeof(*xs.items));     \
-        }                                                                      \
-    } while (0)
 
 // __ VULKAN __
 void initVulkan(AppContext* appContext);
@@ -32,6 +22,7 @@ void run(AppContext* appContext) {
     createInstance(appContext);
     initWindow(appContext);
     initVulkan(appContext);
+    pickPhysicalDevice(appContext);
     mainLoop(appContext);
     cleanup(appContext);
 }
@@ -66,6 +57,7 @@ int main() {
     appContext->fp_errBack = &printError;
     appContext->window = NULL;
     appContext->instance = NULL;
+    appContext->physicalDevice = VK_NULL_HANDLE;
 
     run(appContext);
     free(appContext);

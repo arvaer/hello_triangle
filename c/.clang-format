@@ -9,7 +9,7 @@ Cpp11BracedListStyle: true
 KeepEmptyLinesAtTheStartOfBlocks: false
 MaxEmptyLinesToKeep: 1
 NamespaceIndentation: All
-PenaltyExcessCharacter: 100
+PenaltyExcessCharacter: 89
 PenaltyReturnTypeOnItsOwnLine: 1
 PointerAlignment: Left
 IndentWidth: 4

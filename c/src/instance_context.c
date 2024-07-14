@@ -9,13 +9,13 @@
 #include <vulkan/vulkan_core.h>
 // __ Validation Layers __
 typedef struct {
-    VkLayerProperties* layerNames;
+    VkLayerProperties* items;
     uint32_t count;
     size_t capacity;
 } AvailableLayers;
 
 typedef struct {
-    const char** layerNames;
+    const char** items;
     size_t count;
     size_t capacity;
 } RequiredLayers;
@@ -60,7 +60,7 @@ void createInstance(AppContext* appContext) {
 
     if (enableValidationLayers) {
         createInfo.enabledLayerCount = (uint32_t)validationLayers.count;
-        createInfo.ppEnabledLayerNames = validationLayers.layerNames;
+        createInfo.ppEnabledLayerNames = validationLayers.items;
     } else {
         createInfo.enabledLayerCount = 0;
     }
@@ -78,43 +78,43 @@ int checkValidationLayerSupport(RequiredLayers* requiredLayers) {
     AvailableLayers availableLayers = {0};
     vkEnumerateInstanceLayerProperties(&availableLayers.count, NULL);
 
-    availableLayers.layerNames = (VkLayerProperties*)malloc(
+    availableLayers.items = (VkLayerProperties*)malloc(
       sizeof(VkLayerProperties) * availableLayers.count);
-    if (!availableLayers.layerNames) {
+    if (!availableLayers.items) {
         printf("Failed to allocate memory for layer names.\n");
         return 0;
     }
 
     printf("About to enumerate instance layer properties...\n");
     vkEnumerateInstanceLayerProperties(&availableLayers.count,
-                                       availableLayers.layerNames);
+                                       availableLayers.items);
     printf("Layer enumeration completed. Total layers found: %u\n",
            availableLayers.count);
 
     // Check all the required layers are in the available layers
     for (size_t i = 0; i < requiredLayers->count; ++i) {
         int layerFound = 0;
-        printf("Checking required layer: %s\n", requiredLayers->layerNames[i]);
+        printf("Checking required layer: %s\n", requiredLayers->items[i]);
 
         for (size_t j = 0; j < availableLayers.count; ++j) {
-            if (strcmp(requiredLayers->layerNames[i],
-                       availableLayers.layerNames[j].layerName) == 0) {
+            if (strcmp(requiredLayers->items[i],
+                       availableLayers.items[j].layerName) == 0) {
                 layerFound = 1;
                 printf("Required layer '%s' found.\n",
-                       requiredLayers->layerNames[i]);
+                       requiredLayers->items[i]);
                 break;
             }
         }
 
         if (layerFound == 0) {
             printf("Required layer '%s' not found.\n",
-                   requiredLayers->layerNames[i]);
-            free(availableLayers.layerNames);
+                   requiredLayers->items[i]);
+            free(availableLayers.items);
             return 0;
         }
     }
 
-    free(availableLayers.layerNames);
+    free(availableLayers.items);
     printf("All required layers found.\n");
     return 1;
 }
@@ -126,9 +126,16 @@ void populateLayers(RequiredLayers* requiredLayers) {
     // build required layers struct
     requiredLayers->count = 1;
     requiredLayers->capacity = 1;
-    requiredLayers->layerNames = validationLayers;
+    requiredLayers->items = validationLayers;
 }
 
+VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
+  VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+  VkDebugUtilsMessageTypeFlagsEXT messageType,
+  const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
+    fprintf(stderr, "Validation layer: %s\n", pCallbackData->pMessage);
+    return VK_FALSE;
+}
 void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT* debugCreateInfo) {
     debugCreateInfo->sType =
       VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
