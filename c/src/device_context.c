@@ -93,6 +93,7 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) {
             indices.graphicsFamily = some;
         }
     }
+    free(queuefamilies.items);
     return indices;
 }
 
