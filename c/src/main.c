@@ -50,7 +50,6 @@ void initWindow(AppContext* appContext) {
     assert((*appContext).window != NULL);
 }
 
-
 int main() {
     AppContext* appContext = (AppContext*)malloc(sizeof(AppContext));
 

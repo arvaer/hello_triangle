@@ -15,4 +15,3 @@ typedef struct {
     uint32_t value;
 } opt_uint32_t;
 #endif // !ILY_TYPES_H
-

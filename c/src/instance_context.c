@@ -20,7 +20,6 @@ typedef struct {
     size_t capacity;
 } RequiredLayers;
 
-
 // forward declared stuff
 void populateLayers(RequiredLayers* requiredLayers);
 void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT* debugInfo);
