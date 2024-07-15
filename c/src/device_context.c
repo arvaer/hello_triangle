@@ -2,8 +2,9 @@
 #define ILY_DEVICE_CONTEXT
 #include "context.h"
 #include "ily_errors.h"
-#include <cstdio>
-#include <cstdlib>
+#include "ily_types.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <vulkan/vulkan_core.h>
 
 typedef struct {
@@ -12,6 +13,17 @@ typedef struct {
     uint32_t capacity;
 } PhysicalDevices;
 
+typedef struct {
+    VkQueueFamilyProperties* items;
+    uint32_t count;
+    uint32_t capacity;
+} QueueFamilies;
+
+struct QueueFamilyIndices {
+    opt_uint32_t graphicsFamily = {};
+};
+
+QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 int isDeviceSuitable(VkPhysicalDevice device);
 
 void pickPhysicalDevice(AppContext* appContext) {
@@ -26,8 +38,7 @@ void pickPhysicalDevice(AppContext* appContext) {
         appContext->fp_errBack(ILY_FAILED_TO_FIND_GPU_WITH_VULKAN_SUPPORT);
     }
 
-    if (vkEnumeratePhysicalDevices(appContext->instance, &physicalDevices.count,
-                                   physicalDevices.items) != VK_SUCCESS) {
+    if (vkEnumeratePhysicalDevices(appContext->instance, &physicalDevices.count, physicalDevices.items) != VK_SUCCESS) {
         appContext->fp_errBack(ILY_FAILED_TO_FIND_GPU_WITH_VULKAN_SUPPORT);
     };
 
@@ -47,21 +58,42 @@ void pickPhysicalDevice(AppContext* appContext) {
 
     // for debug
     VkPhysicalDeviceProperties deviceProperties;
-    vkGetPhysicalDeviceProperties(appContext->physicalDevice,
-                                  &deviceProperties);
+    vkGetPhysicalDeviceProperties(appContext->physicalDevice, &deviceProperties);
     printf("Device Name: %s\n", deviceProperties.deviceName);
 }
 
 int isDeviceSuitable(VkPhysicalDevice device) {
+    QueueFamilyIndices indices = findQueueFamilies(device);
+
     VkPhysicalDeviceProperties deviceProperties;
     VkPhysicalDeviceFeatures deviceFeatures;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
     vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
-     if (deviceFeatures.geometryShader){
-         return 1;
-     }
-     return 0;
+    if (indices.graphicsFamily.isPresent && deviceFeatures.geometryShader) {
+        return 1;
+    }
+
+    return 0;
+}
+
+QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) {
+    QueueFamilies queuefamilies = {};
+    QueueFamilyIndices indices = {.graphicsFamily = {.isPresent = 0, .value = 0}};
+
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queuefamilies.count, nullptr);
+    queuefamilies.capacity = queuefamilies.count * 2;
+    queuefamilies.items = (VkQueueFamilyProperties*)malloc(queuefamilies.count * sizeof(VkQueueFamilyProperties));
+
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queuefamilies.count, queuefamilies.items);
+    for (size_t i = 0; i < queuefamilies.count; ++i) {
+        VkQueueFamilyProperties targetFamily = queuefamilies.items[i];
+        if (targetFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+            opt_uint32_t some = {.isPresent = 1, .value = (uint32_t)i};
+            indices.graphicsFamily = some;
+        }
+    }
+    return indices;
 }
 
 #endif /* ifndef ILY_DEVICE_CONTEXT */

@@ -28,8 +28,8 @@ lib/%.o: lib/%.c
 
 Shaders:
 	mkdir -p shaders
-	glslc ./shaders/shader.vert -o ./shaders/out/vert.spv
-	glslc ./shaders/shader.frag -o ./shaders/out/frag.spv
+	glslc shaders/shader.vert -o shaders/out/vert.spv
+	glslc shaders/shader.frag -o shaders/out/frag.spv
 
 .PHONY: all test clean
 
@@ -41,7 +41,9 @@ test: VulkanTest
 
 clean:
 	rm -f VulkanTest $(OBJECTS)
-	rm -r shaders/*
+clean_all:
+	rm -f VulkanTest $(OBJECTS)
+	rm -f shaders/out
 
 memory_layout: VulkanTest
 	objdump -x VulkanTest
