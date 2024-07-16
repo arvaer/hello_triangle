@@ -1,5 +1,6 @@
 #ifndef ILY_TYPES_H
 #define ILY_TYPES_H
+#include <stddef.h>
 #include <stdint.h>
 // There are sections of the vulkan tutorial that call out to the std::optional from cpp
 // After some research online, I think it would be straight forward to implement this using some generics
@@ -11,7 +12,7 @@
 // it's also then easy to just implement unwrap we can also implement unwrap from here without polluting the src code
 
 typedef struct {
-    int isPresent;
+    size_t isPresent;
     uint32_t value;
 } opt_uint32_t;
 #endif // !ILY_TYPES_H

@@ -1,5 +1,5 @@
-#ifndef ILY_DEVICE_CONTEXT
-#define ILY_DEVICE_CONTEXT
+#ifndef ILY_PHYSICAL_DEVICE_CONTEXT
+#define ILY_PHYSICAL_DEVICE_CONTEXT
 #include "context.h"
 #include "ily_errors.h"
 #include "ily_types.h"
@@ -19,12 +19,10 @@ typedef struct {
     uint32_t capacity;
 } QueueFamilies;
 
-struct QueueFamilyIndices {
-    opt_uint32_t graphicsFamily = {};
-};
 
 QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 int isDeviceSuitable(VkPhysicalDevice device);
+
 
 void pickPhysicalDevice(AppContext* appContext) {
     PhysicalDevices physicalDevices = {};
@@ -97,4 +95,4 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) {
     return indices;
 }
 
-#endif /* ifndef ILY_DEVICE_CONTEXT */
+#endif /* ifndef ILY_PHYSICAL_DEVICE_CONTEXT */

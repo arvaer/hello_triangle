@@ -72,49 +72,36 @@ void createInstance(AppContext* appContext) {
 }
 
 int checkValidationLayerSupport(RequiredLayers* requiredLayers) {
-    printf("Starting validation layer support check.\n");
 
     AvailableLayers availableLayers = {0};
     vkEnumerateInstanceLayerProperties(&availableLayers.count, NULL);
 
-    availableLayers.items = (VkLayerProperties*)malloc(
-      sizeof(VkLayerProperties) * availableLayers.count);
+    availableLayers.items = (VkLayerProperties*)malloc( sizeof(VkLayerProperties) * availableLayers.count);
     if (!availableLayers.items) {
         printf("Failed to allocate memory for layer names.\n");
         return 0;
     }
 
-    printf("About to enumerate instance layer properties...\n");
-    vkEnumerateInstanceLayerProperties(&availableLayers.count,
-                                       availableLayers.items);
-    printf("Layer enumeration completed. Total layers found: %u\n",
-           availableLayers.count);
+    vkEnumerateInstanceLayerProperties(&availableLayers.count, availableLayers.items);
 
     // Check all the required layers are in the available layers
     for (size_t i = 0; i < requiredLayers->count; ++i) {
         int layerFound = 0;
-        printf("Checking required layer: %s\n", requiredLayers->items[i]);
 
         for (size_t j = 0; j < availableLayers.count; ++j) {
-            if (strcmp(requiredLayers->items[i],
-                       availableLayers.items[j].layerName) == 0) {
+            if (strcmp(requiredLayers->items[i], availableLayers.items[j].layerName) == 0) {
                 layerFound = 1;
-                printf("Required layer '%s' found.\n",
-                       requiredLayers->items[i]);
                 break;
             }
         }
 
         if (layerFound == 0) {
-            printf("Required layer '%s' not found.\n",
-                   requiredLayers->items[i]);
             free(availableLayers.items);
             return 0;
         }
     }
 
     free(availableLayers.items);
-    printf("All required layers found.\n");
     return 1;
 }
 

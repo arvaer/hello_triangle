@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -19,15 +20,18 @@ void cleanup(AppContext* appContext);
 void initWindow(AppContext* appContext);
 
 void run(AppContext* appContext) {
-    createInstance(appContext);
     initWindow(appContext);
     initVulkan(appContext);
-    pickPhysicalDevice(appContext);
     mainLoop(appContext);
     cleanup(appContext);
 }
 
-void initVulkan(AppContext* appContext) {}
+void initVulkan(AppContext* appContext) {
+    createInstance(appContext);
+    pickPhysicalDevice(appContext);
+    createLogicalDevice(appContext);
+
+}
 
 void mainLoop(AppContext* appContext) {
     while (!glfwWindowShouldClose((*appContext).window)) {
@@ -36,6 +40,8 @@ void mainLoop(AppContext* appContext) {
 }
 
 void cleanup(AppContext* appContext) {
+    vkDestroyDevice(appContext->logicalDevice, nullptr);
+
     glfwDestroyWindow((*appContext).window);
     glfwTerminate();
 }
@@ -53,12 +59,14 @@ void initWindow(AppContext* appContext) {
 int main() {
     AppContext* appContext = (AppContext*)malloc(sizeof(AppContext));
 
-    appContext->fp_errBack = &printError;
     appContext->window = NULL;
     appContext->instance = NULL;
     appContext->physicalDevice = VK_NULL_HANDLE;
-
+    appContext->logicalDevice = VK_NULL_HANDLE;
+    appContext->debugMessenger = NULL;
+    appContext->fp_errBack = &printError;
     run(appContext);
+
     free(appContext);
     return EXIT_SUCCESS;
 }

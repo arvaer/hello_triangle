@@ -1,1 +1,77 @@
-[]
+[
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-g",
+      "-gdwarf-4",
+      "-Ilib",
+      "-c",
+      "-o",
+      "src/main.o",
+      "src/main.c"
+    ],
+    "directory": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c",
+    "file": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c/src/main.c",
+    "output": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c/src/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-g",
+      "-gdwarf-4",
+      "-Ilib",
+      "-c",
+      "-o",
+      "src/device_context.o",
+      "src/device_context.c"
+    ],
+    "directory": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c",
+    "file": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c/src/device_context.c",
+    "output": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c/src/device_context.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-g",
+      "-gdwarf-4",
+      "-Ilib",
+      "-c",
+      "-o",
+      "src/instance_context.o",
+      "src/instance_context.c"
+    ],
+    "directory": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c",
+    "file": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c/src/instance_context.c",
+    "output": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c/src/instance_context.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-g",
+      "-gdwarf-4",
+      "-Ilib",
+      "-c",
+      "-o",
+      "lib/ily_errors.o",
+      "lib/ily_errors.c"
+    ],
+    "directory": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c",
+    "file": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c/lib/ily_errors.c",
+    "output": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c/lib/ily_errors.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-g",
+      "-gdwarf-4",
+      "-Ilib",
+      "-c",
+      "-o",
+      "lib/ily_types.o",
+      "lib/ily_types.c"
+    ],
+    "directory": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c",
+    "file": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c/lib/ily_types.c",
+    "output": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c/lib/ily_types.o"
+  }
+]
