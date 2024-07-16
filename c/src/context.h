@@ -31,19 +31,23 @@ typedef struct AppContext {
     VkPhysicalDevice physicalDevice;
     VkDevice logicalDevice;
     VkQueue graphicsQueue;
+    VkQueue presentQueue;
+    VkSurfaceKHR surface;
     VkDebugUtilsMessengerEXT debugMessenger;
     ErrorCallback fp_errBack;
 } AppContext;
 
 typedef struct {
     opt_uint32_t graphicsFamily;
+    opt_uint32_t presentFamily;
 } QueueFamilyIndices;
 
 void createInstance(AppContext* appContext);
 void setupDebugMessenger(AppContext* appContext);
 void pickPhysicalDevice(AppContext* appContext);
 void createLogicalDevice(AppContext* appContext);
+void createSurface(AppContext* appContext);
 
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+QueueFamilyIndices findQueueFamilies(AppContext* appContext, VkPhysicalDevice device);
 
 #endif // ILY_CONTEXT_H

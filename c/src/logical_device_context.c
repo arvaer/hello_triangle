@@ -3,36 +3,50 @@
 #include "context.h"
 
 void createLogicalDevice(AppContext* appContext) {
-    QueueFamilyIndices indices = findQueueFamilies(appContext->physicalDevice);
-    VkDeviceQueueCreateInfo queueCreateInfo{};
-    // leaving empty until we're ready to use in later chapters
+    QueueFamilyIndices indices = findQueueFamilies(appContext, appContext->physicalDevice);
+    VkDeviceQueueCreateInfo queueCreateInfos[2]{};
     VkPhysicalDeviceFeatures deviceFeatures{};
     VkDeviceCreateInfo createInfo{};
-
-    // QueueCreationLogic
     float queuePriority = 1.0f;
+
+    // Check for the presence of required queue families
     if (!indices.graphicsFamily.isPresent) {
         appContext->fp_errBack(ILY_GRAPHICS_FAMILY_NOT_PRESENT);
+        return;
+    }
+    if (!indices.presentFamily.isPresent) {
+        appContext->fp_errBack(ILY_PRESENT_FAMILY_NOT_PRESENT);
+        return;
     }
 
-    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value;
-    queueCreateInfo.queueCount = 1;
-    queueCreateInfo.pQueuePriorities = &queuePriority;
+    // Graphics queue creation info
+    queueCreateInfos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfos[0].queueFamilyIndex = indices.graphicsFamily.value;
+    queueCreateInfos[0].queueCount = 1;
+    queueCreateInfos[0].pQueuePriorities = &queuePriority;
 
-    // DeviceFeature Logic
+    // Present queue creation info
+    queueCreateInfos[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfos[1].queueFamilyIndex = indices.presentFamily.value;
+    queueCreateInfos[1].queueCount = 1;
+    queueCreateInfos[1].pQueuePriorities = &queuePriority;
 
-    // Logical Device Creatioon Logic
+    // Device creation info
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    createInfo.pQueueCreateInfos = &queueCreateInfo;
-    createInfo.queueCreateInfoCount = 1;
+    createInfo.queueCreateInfoCount = 2;
+    createInfo.pQueueCreateInfos = queueCreateInfos;
     createInfo.pEnabledFeatures = &deviceFeatures;
 
+    // Create the logical device
     if (vkCreateDevice(appContext->physicalDevice, &createInfo, nullptr, &appContext->logicalDevice) != VK_SUCCESS) {
         appContext->fp_errBack(ILY_LOGICAL_DEVICE_CREATION_FAILED);
+        return;
     }
 
+    // Get the device queues
     vkGetDeviceQueue(appContext->logicalDevice, indices.graphicsFamily.value, 0, &appContext->graphicsQueue);
-};
+    vkGetDeviceQueue(appContext->logicalDevice, indices.presentFamily.value, 0, &appContext->presentQueue);
+}
+
 
 #endif /* ifndef ILY_LOGICAL_DEVICE_CONTEXT */

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "context.h"
+#include "ily_types.h"
 
 typedef struct {
     VkPhysicalDevice* items;
@@ -17,16 +18,14 @@ typedef struct {
     uint32_t capacity;
 } QueueFamilies;
 
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-size_t isDeviceSuitable(VkPhysicalDevice device);
+size_t isDeviceSuitable(AppContext* appContext, VkPhysicalDevice device);
 
 void pickPhysicalDevice(AppContext* appContext) {
     PhysicalDevices physicalDevices = {};
     vkEnumeratePhysicalDevices(appContext->instance, &physicalDevices.count, nullptr);
 
     physicalDevices.capacity = physicalDevices.count * 2;
-    physicalDevices.items = (VkPhysicalDevice*)malloc(
-      physicalDevices.count * sizeof(VkPhysicalDevice*));
+    physicalDevices.items = (VkPhysicalDevice*)malloc(physicalDevices.count * sizeof(VkPhysicalDevice*));
 
     if (physicalDevices.count == 0) {
         appContext->fp_errBack(ILY_FAILED_TO_FIND_GPU_WITH_VULKAN_SUPPORT);
@@ -38,7 +37,7 @@ void pickPhysicalDevice(AppContext* appContext) {
 
     for (size_t i = 0; i < physicalDevices.count; ++i) {
         VkPhysicalDevice targetDevice = physicalDevices.items[i];
-        if (isDeviceSuitable(targetDevice)) {
+        if (isDeviceSuitable(appContext, targetDevice)) {
             appContext->physicalDevice = targetDevice;
             break;
         }
@@ -56,8 +55,8 @@ void pickPhysicalDevice(AppContext* appContext) {
     printf("Device Name: %s\n", deviceProperties.deviceName);
 }
 
-size_t isDeviceSuitable(VkPhysicalDevice device) {
-    QueueFamilyIndices indices = findQueueFamilies(device);
+size_t isDeviceSuitable(AppContext* appContext, VkPhysicalDevice device) {
+    QueueFamilyIndices indices = findQueueFamilies(appContext, device);
 
     VkPhysicalDeviceProperties deviceProperties;
     VkPhysicalDeviceFeatures deviceFeatures;
@@ -71,9 +70,10 @@ size_t isDeviceSuitable(VkPhysicalDevice device) {
     return 0;
 }
 
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) {
+QueueFamilyIndices findQueueFamilies(AppContext* appContext, VkPhysicalDevice device) {
     QueueFamilies queuefamilies = {};
-    QueueFamilyIndices indices = {.graphicsFamily = {.isPresent = 0, .value = 0}};
+    QueueFamilyIndices indices = {.graphicsFamily = {.isPresent = 0, .value = 0}, .presentFamily = {.isPresent = 0, .value = 0}};
+    VkBool32 presentSupport = false;
 
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queuefamilies.count, nullptr);
     queuefamilies.capacity = queuefamilies.count * 2;
@@ -82,9 +82,15 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) {
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queuefamilies.count, queuefamilies.items);
     for (size_t i = 0; i < queuefamilies.count; ++i) {
         VkQueueFamilyProperties targetFamily = queuefamilies.items[i];
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, appContext->surface, &presentSupport);
         if (targetFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
             opt_uint32_t some = {.isPresent = 1, .value = (uint32_t)i};
             indices.graphicsFamily = some;
+        }
+
+        if (presentSupport) {
+            opt_uint32_t some = {.isPresent = 1, .value = (uint32_t)i};
+            indices.presentFamily = some;
         }
     }
     free(queuefamilies.items);

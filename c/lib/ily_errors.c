@@ -16,11 +16,17 @@ void printError(ERROR error) {
     case ILY_GRAPHICS_FAMILY_NOT_PRESENT:
         fprintf(stderr, "GRAPHICS FAMILY UNAVAILABLE WHILE UNWRAPPING INDICES\n");
         break;
+    case ILY_PRESENT_FAMILY_NOT_PRESENT:
+        fprintf(stderr, "PRESENT FAMILY UNAVAILABLE WHILE UNWRAPPING INDICES\n");
+        break;
     case ILY_LOGICAL_DEVICE_CREATION_FAILED:
         fprintf(stderr, "LOGICAL DEVICE CREATION FAILED\n");
         break;
     case ILY_FAILED_TO_CREATE_DEBUG_MESSENGER:
         fprintf(stderr, "FAILED TO CREATE DEBUG MESSENGER\n");
+        break;
+    case ILY_FAILED_TO_CREATE_WINDOW_SURFACE:
+        fprintf(stderr, "FAILED TO CREATE WINDOW SURFACE\n");
         break;
     default:
         fprintf(stderr, "UNKNOWN ERROR\n");
