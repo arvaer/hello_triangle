@@ -1,12 +1,12 @@
 #ifndef ILY_CONTEXT
 #define ILY_CONTEXT
-#include "context.h"
-#include <GLFW/glfw3.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <vulkan/vulkan_core.h>
+
+#include "context.h"
+
 // __ Validation Layers __
 typedef struct {
     VkLayerProperties* items;
@@ -72,18 +72,16 @@ void createInstance(AppContext* appContext) {
 }
 
 int checkValidationLayerSupport(RequiredLayers* requiredLayers) {
-
     AvailableLayers availableLayers = {0};
     vkEnumerateInstanceLayerProperties(&availableLayers.count, NULL);
 
-    availableLayers.items = (VkLayerProperties*)malloc( sizeof(VkLayerProperties) * availableLayers.count);
+    availableLayers.items = (VkLayerProperties*)malloc(sizeof(VkLayerProperties) * availableLayers.count);
     if (!availableLayers.items) {
-        printf("Failed to allocate memory for layer names.\n");
+        fprintf(stderr, "Failed to allocate memory for layer names.\n");
         return 0;
     }
 
     vkEnumerateInstanceLayerProperties(&availableLayers.count, availableLayers.items);
-
     // Check all the required layers are in the available layers
     for (size_t i = 0; i < requiredLayers->count; ++i) {
         int layerFound = 0;
@@ -122,6 +120,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     fprintf(stderr, "Validation layer: %s\n", pCallbackData->pMessage);
     return VK_FALSE;
 }
+
 void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT* debugCreateInfo) {
     debugCreateInfo->sType =
       VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;

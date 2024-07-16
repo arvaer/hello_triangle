@@ -1,9 +1,10 @@
 #ifndef ILY_CONTEXT_H
 #define ILY_CONTEXT_H
-#include "ily_errors.h"
-#include "ily_types.h"
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan_core.h>
+
+#include "ily_errors.h"
+#include "ily_types.h"
 
 #ifdef NDEBUG
 const int enableValidationLayers = 0;

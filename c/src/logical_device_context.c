@@ -1,7 +1,6 @@
 #ifndef ILY_LOGICAL_DEVICE_CONTEXT
 #define ILY_LOGICAL_DEVICE_CONTEXT
 #include "context.h"
-#include <vulkan/vulkan_core.h>
 
 void createLogicalDevice(AppContext* appContext) {
     QueueFamilyIndices indices = findQueueFamilies(appContext->physicalDevice);

@@ -1,11 +1,9 @@
 #ifndef ILY_PHYSICAL_DEVICE_CONTEXT
 #define ILY_PHYSICAL_DEVICE_CONTEXT
-#include "context.h"
-#include "ily_errors.h"
-#include "ily_types.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <vulkan/vulkan_core.h>
+
+#include "context.h"
 
 typedef struct {
     VkPhysicalDevice* items;
@@ -19,15 +17,13 @@ typedef struct {
     uint32_t capacity;
 } QueueFamilies;
 
-
 QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-int isDeviceSuitable(VkPhysicalDevice device);
-
+size_t isDeviceSuitable(VkPhysicalDevice device);
 
 void pickPhysicalDevice(AppContext* appContext) {
     PhysicalDevices physicalDevices = {};
-    vkEnumeratePhysicalDevices(appContext->instance, &physicalDevices.count,
-                               nullptr);
+    vkEnumeratePhysicalDevices(appContext->instance, &physicalDevices.count, nullptr);
+
     physicalDevices.capacity = physicalDevices.count * 2;
     physicalDevices.items = (VkPhysicalDevice*)malloc(
       physicalDevices.count * sizeof(VkPhysicalDevice*));
@@ -60,7 +56,7 @@ void pickPhysicalDevice(AppContext* appContext) {
     printf("Device Name: %s\n", deviceProperties.deviceName);
 }
 
-int isDeviceSuitable(VkPhysicalDevice device) {
+size_t isDeviceSuitable(VkPhysicalDevice device) {
     QueueFamilyIndices indices = findQueueFamilies(device);
 
     VkPhysicalDeviceProperties deviceProperties;
