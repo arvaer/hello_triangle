@@ -2,17 +2,32 @@
 #define ILY_TYPES_H
 #include <stddef.h>
 #include <stdint.h>
-// There are sections of the vulkan tutorial that call out to the std::optional from cpp
-// After some research online, I think it would be straight forward to implement this using some generics
-// from c11 (atleast thats what the reddit post said.)
-// It's also possible to define a macro that will generate option structs around a given type you pass it.
-// anyways, if you come back to this, the reason for just coding out all of the optional types we encounter
-// is because we can. maybe in the future we can try making our own optional monad but theres enough
-// complexity here that we dont need to add stff. certainly not in C where there are not generics out of the box
-// it's also then easy to just implement unwrap we can also implement unwrap from here without polluting the src code
 
 typedef struct {
+    void* value;
     size_t isPresent;
-    uint32_t value;
-} opt_uint32_t;
+    size_t size;
+    size_t* refCount;
+} option;
+
+typedef struct {
+    void* items;
+    size_t count;
+    size_t capacity;
+    size_t size;
+} vector;
+
+size_t vector_init(vector* vector, const size_t itemSize);
+size_t vector_append(vector* vector, const void* item);
+size_t vector_remove(vector* vector, const size_t position);
+size_t vector_subtract_string(vector* vector, const void* item);
+
+size_t option_wrap(option* option, const void* item, const size_t itemSize);
+void* option_unwrap(option* option);
+size_t option_release(option* option);
+size_t option_peek(option* option);
+option* option_clone(option* option);
+
+
+
 #endif // !ILY_TYPES_H

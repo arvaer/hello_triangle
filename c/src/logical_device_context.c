@@ -1,6 +1,7 @@
 #ifndef ILY_LOGICAL_DEVICE_CONTEXT
 #define ILY_LOGICAL_DEVICE_CONTEXT
 #include "context.h"
+#include <cstdlib>
 
 void createLogicalDevice(AppContext* appContext) {
     QueueFamilyIndices indices = findQueueFamilies(appContext, appContext->physicalDevice);
@@ -36,6 +37,14 @@ void createLogicalDevice(AppContext* appContext) {
     createInfo.queueCreateInfoCount = 2;
     createInfo.pQueueCreateInfos = queueCreateInfos;
     createInfo.pEnabledFeatures = &deviceFeatures;
+
+    // Swapchain enabling
+    // once again just hardcoding this for the sake of completing the tutorial
+    ExtensionNames extensions = {.count = 1, .capacity = 5};
+    extensions.items = (const char**)malloc(extensions.count * sizeof(const char**));
+    extensions.items[0] = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
+    createInfo.enabledExtensionCount = extensions.count;
+    createInfo.ppEnabledExtensionNames = extensions.items;
 
     // Create the logical device
     if (vkCreateDevice(appContext->physicalDevice, &createInfo, nullptr, &appContext->logicalDevice) != VK_SUCCESS) {

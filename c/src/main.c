@@ -44,7 +44,7 @@ void cleanup(AppContext* appContext) {
     vkDestroySurfaceKHR(appContext->instance, appContext->surface, nullptr);
     vkDestroyDevice(appContext->logicalDevice, nullptr);
 
-    glfwDestroyWindow((*appContext).window);
+    glfwDestroyWindow(appContext->window);
     glfwTerminate();
 }
 

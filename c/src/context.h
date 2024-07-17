@@ -42,6 +42,12 @@ typedef struct {
     opt_uint32_t presentFamily;
 } QueueFamilyIndices;
 
+typedef struct {
+    const char** items;
+    uint32_t count;
+    uint32_t capacity;
+} ExtensionNames;
+
 void createInstance(AppContext* appContext);
 void setupDebugMessenger(AppContext* appContext);
 void pickPhysicalDevice(AppContext* appContext);
