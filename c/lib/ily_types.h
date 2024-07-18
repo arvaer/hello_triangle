@@ -17,17 +17,30 @@ typedef struct {
     size_t size;
 } vector;
 
-size_t vector_init(vector* vector, const size_t itemSize);
-size_t vector_append(vector* vector, const void* item);
-size_t vector_remove(vector* vector, const size_t position);
-size_t vector_subtract_string(vector* vector, const void* item);
+int vector_init(vector* vector, const size_t itemSize);
+void vector_free(vector* vector);
+int vector_append(vector* vector, const void* item);
+/**
+ * this function gets an item from the vector at the specified index and
+ * returns a pointer to that item. The caller is responsible for
+ * freeing the returned item to avoid memory leaks.
+ *
+ * pls seriously. make sure u free it later
+ */
+void* vector_get(vector* vector, const size_t index);
+/**
+ * this function removes an item from the vector at the specified index and
+ * returns a pointer to the removed item. The caller is responsible for
+ * freeing the returned item to avoid memory leaks.
+ *
+ * pls seriously. make sure u free it later
+ */
+void* vector_remove(vector* vector, const size_t index);
 
 size_t option_wrap(option* option, const void* item, const size_t itemSize);
 void* option_unwrap(option* option);
 size_t option_release(option* option);
 size_t option_peek(option* option);
 option* option_clone(option* option);
-
-
 
 #endif // !ILY_TYPES_H
