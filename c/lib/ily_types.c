@@ -2,12 +2,6 @@
 #include <cstring>
 #include <stdlib.h>
 
-size_t option_wrap(option* option, const void* item, const size_t itemSize);
-void* option_unwrap(option* option);
-size_t option_release(option* option);
-size_t option_peek(option* option);
-option* option_clone(option* option);
-
 int vector_init(vector* vector, const size_t itemSize) {
     vector->items = NULL;
     vector->count = 0;
@@ -44,18 +38,18 @@ void* vector_get(vector* vector, const size_t index) {
     return (char*)vector->items + (index * vector->size);
 }
 
-//eventually we can support negative indexing. for now, size_t is unsigned so
+// eventually we can support negative indexing. for now, size_t is unsigned so
 void* vector_remove(vector* vector, const size_t index) {
     if (vector->count <= index) {
         return NULL;
     }
-    char* item =(char*) malloc(vector->size);
-    if(!item){
+    char* item = (char*)malloc(vector->size);
+    if (!item) {
         return NULL;
     }
     char* target = (char*)vector->items + (index * vector->size);
-    memcpy(item,target,vector->size);
-    if (index < vector->count - 1){
+    memcpy(item, target, vector->size);
+    if (index < vector->count - 1) {
         memmove(target, target + vector->size, (vector->count - index - 1) * vector->size);
     }
 
@@ -69,3 +63,52 @@ void vector_free(vector* vector) {
     vector->count = 0;
     vector->capacity = 0;
 }
+
+option option_wrap(const void* item, const size_t itemSize) {
+    size_t* refCount = (size_t*)malloc(sizeof(size_t));
+    if(!refCount) {
+        return (option){NULL,0,0,NULL};
+    }
+    void* newItem = malloc(itemSize);
+    if (!newItem){
+        free(refCount);
+        refCount = NULL;
+        return (option){NULL,0,0,NULL};
+
+    }
+    memcpy(newItem, item, itemSize);
+    *refCount = 1;
+
+    return option{
+      .value = newItem,
+      .isPresent = 1,
+      .size = itemSize,
+      .refCount = refCount
+    };
+}
+
+option* option_shallow_copy(option* option){
+    if (option && option->refCount){
+        // interesting. it's actually
+        // we need (*(*option).refCount)++
+        // option->refCount++ increments the pointer to refcount.
+        (*option->refCount)++;
+    }
+    return option;
+}
+
+int option_free(option* option){
+    if (option && option->refCount) {
+        (*option->refCount)--;
+        if (*option->refCount == 0) {
+            free(option->value);
+            free(option->refCount);
+            option->value = NULL;
+            option->isPresent = 0;
+            option->size = 0;
+            option->refCount = NULL;
+        }
+    }
+    return 1;
+}
+

@@ -136,9 +136,27 @@ void test_vector_remove(){
 
 }
 
+
+void test_option_wrap(){
+    int test_item = 12;
+    int test_size = sizeof(int);
+    int refcount = 1;
+
+    option wrapped = option_wrap(&test_item, test_size);
+
+    int* p_value = (int*)wrapped.value;
+    assert(*p_value == test_item);
+    assert(wrapped.isPresent == 1);
+    assert(wrapped.size == test_size);
+    assert(*wrapped.refCount == refcount);
+
+}
+
 int main() {
     test_vector_init();
     test_vector_append();
     test_vector_get();
     test_vector_remove();
+    test_option_wrap();
 }
+
