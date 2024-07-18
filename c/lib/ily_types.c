@@ -38,7 +38,7 @@ int vector_append(vector* vector, const void* item) {
 }
 
 void* vector_get(vector* vector, const size_t index) {
-    if (vector->count >= index) {
+    if (vector->count <= index) {
         return NULL;
     }
     return (char*)vector->items + (index * vector->size);
