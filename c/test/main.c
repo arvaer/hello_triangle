@@ -1,5 +1,6 @@
 #include "ily_types.h"
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 void test_vector_init() {
@@ -149,6 +150,52 @@ void test_option_wrap(){
     assert(wrapped.isPresent == 1);
     assert(wrapped.size == test_size);
     assert(*wrapped.refCount == refcount);
+}
+
+void test_option_clone_release(){
+    int test_item = 12;
+    int test_size = sizeof(int);
+
+    option wrapped = option_wrap(&test_item, test_size);
+    option* clone = option_clone(&wrapped);
+    assert(*(wrapped.refCount) == 2);
+    option* clone2 = option_clone(clone);
+    assert(*(wrapped.refCount) == 3);
+    option* clone3 = option_clone(clone2);
+
+    assert(*(wrapped.refCount) == 4);
+    assert(*(clone3->refCount) ==4);
+    assert(*(clone2->refCount) ==4);
+    assert(*(clone->refCount) ==4);
+
+    option_release(clone3);
+    assert(*(wrapped.refCount) == 3);
+    option_release(clone2);
+    assert(*(wrapped.refCount) == 2);
+    option_release(clone);
+    assert(*(wrapped.refCount) == 1);
+}
+
+void test_option_peek(){
+    int test_item = 12;
+    int test_size = sizeof(int);
+    option wrapped = option_wrap(&test_item, test_size);
+    assert(option_peek(&wrapped));
+    wrapped.isPresent = 0;
+    assert(!option_peek(&wrapped));
+}
+
+void test_option_unwrap(){
+    int test_item = 12;
+    int test_size = sizeof(int);
+    option wrapped = option_wrap(&test_item, test_size);
+    option* clone = option_clone(&wrapped);
+    option* clone2 = option_clone(&wrapped);
+
+    int* value_in_option = (int*)option_unwrap(clone2);
+    assert(*(wrapped.refCount) == 2);
+    assert(clone2 == NULL);
+    assert(*value_in_option == 12);
 
 }
 
@@ -158,5 +205,8 @@ int main() {
     test_vector_get();
     test_vector_remove();
     test_option_wrap();
+    test_option_clone_release();
+    test_option_peek();
+    test_option_unwrap();
 }
 

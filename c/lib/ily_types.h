@@ -32,8 +32,8 @@ void* vector_remove(vector* vector, const size_t index);
 
 option option_wrap(const void* item, const size_t itemSize);
 void* option_unwrap(option* option);
-int option_release(option* option);
 int option_peek(option* option);
+int option_release(option* option);
 option* option_clone(option* option);
 
 #endif // !ILY_TYPES_H

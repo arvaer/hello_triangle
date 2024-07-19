@@ -66,15 +66,14 @@ void vector_free(vector* vector) {
 
 option option_wrap(const void* item, const size_t itemSize) {
     size_t* refCount = (size_t*)malloc(sizeof(size_t));
-    if(!refCount) {
-        return (option){NULL,0,0,NULL};
+    if (!refCount) {
+        return (option){NULL, 0, 0, NULL};
     }
     void* newItem = malloc(itemSize);
-    if (!newItem){
+    if (!newItem) {
         free(refCount);
         refCount = NULL;
-        return (option){NULL,0,0,NULL};
-
+        return (option){NULL, 0, 0, NULL};
     }
     memcpy(newItem, item, itemSize);
     *refCount = 1;
@@ -83,12 +82,11 @@ option option_wrap(const void* item, const size_t itemSize) {
       .value = newItem,
       .isPresent = 1,
       .size = itemSize,
-      .refCount = refCount
-    };
+      .refCount = refCount};
 }
 
-option* option_shallow_copy(option* option){
-    if (option && option->refCount){
+option* option_shallow_copy(option* option) {
+    if (option && option->refCount) {
         // interesting. it's actually
         // we need (*(*option).refCount)++
         // option->refCount++ increments the pointer to refcount.
@@ -97,7 +95,11 @@ option* option_shallow_copy(option* option){
     return option;
 }
 
-int option_free(option* option){
+option* option_clone(option* option) {
+    return option_shallow_copy(option);
+}
+
+int option_release(option* option) {
     if (option && option->refCount) {
         (*option->refCount)--;
         if (*option->refCount == 0) {
@@ -108,7 +110,29 @@ int option_free(option* option){
             option->size = 0;
             option->refCount = NULL;
         }
+        option = NULL;
     }
     return 1;
 }
 
+int option_peek(option* option) {
+    if (option && option->isPresent) {
+        return 1;
+    }
+    return 0;
+}
+
+void* option_unwrap(option* option) {
+    if (option && option->isPresent) {
+        void* value = malloc(option->size);
+        if (!value) {
+            return NULL;
+        }
+        memcpy(value, option->value, option->size);
+        option_release(option);
+        return value;
+    } else if (option && !option->isPresent) {
+        return NULL;
+    }
+    return NULL;
+}
