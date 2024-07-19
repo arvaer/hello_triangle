@@ -12,18 +12,6 @@ const int enableValidationLayers = 0;
 const size_t enableValidationLayers = 1;
 #endif
 
-#define da_append(xs, x)                                                       \
-    do {                                                                       \
-        if (xs.count >= xs.capacity) {                                         \
-            if (xs.capacity == 0) {                                            \
-                xs.capacity = 5;                                               \
-            } else {                                                           \
-                xs.capacity *= 2;                                              \
-                xs.items = realloc(xs.items, xs.capacity * sizeof(*xs.items)); \
-            }                                                                  \
-            xs.items[xs.count++] = x;                                          \
-        }                                                                      \
-    } while (0)
 
 typedef struct AppContext {
     GLFWwindow* window;
@@ -38,8 +26,8 @@ typedef struct AppContext {
 } AppContext;
 
 typedef struct {
-    opt_uint32_t graphicsFamily;
-    opt_uint32_t presentFamily;
+    option graphicsFamily;
+    option presentFamily;
 } QueueFamilyIndices;
 
 typedef struct {

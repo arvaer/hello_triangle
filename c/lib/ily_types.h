@@ -12,7 +12,7 @@ typedef struct {
 
 typedef struct {
     void* items;
-    size_t count;
+    uint32_t count;
     size_t capacity;
     size_t size;
 } vector;

@@ -1,5 +1,6 @@
 #include "../lib/ily_errors.h"
 #include "context.h"
+#include "ily_types.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <vulkan/vulkan.h>
@@ -53,10 +54,10 @@ void initWindow(AppContext* appContext) {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-    (*appContext).window =
-      glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", NULL, NULL);
+    (*appContext).window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", NULL, NULL);
     assert((*appContext).window != NULL);
 }
+
 
 int main() {
     AppContext* appContext = (AppContext*)malloc(sizeof(AppContext));

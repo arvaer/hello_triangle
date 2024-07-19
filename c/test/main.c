@@ -8,7 +8,7 @@ void test_vector_init() {
     size_t test_size = sizeof(int);
 
     void* expected_items = NULL;
-    size_t expected_count = 0;
+    uint32_t expected_count = 0;
     size_t expected_capacity = 0;
     size_t expected_size = sizeof(int);
 
@@ -26,7 +26,7 @@ void test_vector_append() {
     size_t test_size = sizeof(int);
 
     int expected_items[3] = {1, 2, 3};
-    size_t expected_count = 3;
+    uint32_t expected_count = 3;
     size_t expected_capacity = 5;
     size_t expected_size = sizeof(int);
 
@@ -59,7 +59,7 @@ void test_vector_get(){
     size_t test_size = sizeof(int);
 
     int expected_items[3] = {1, 2, 3};
-    size_t expected_count = 3;
+    uint32_t expected_count = 3;
     size_t expected_capacity = 5;
     size_t expected_size = sizeof(int);
 
@@ -99,7 +99,7 @@ void test_vector_remove(){
 
     int expected_removed_item = 2;
     int expected_items[3] = {1, 3};
-    size_t expected_count = 2;
+    uint32_t expected_count = 2;
     size_t expected_capacity = 5;
     size_t expected_size = sizeof(int);
 

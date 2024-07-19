@@ -6,31 +6,26 @@
 #include <string.h>
 
 #include "context.h"
+#include "ily_types.h"
 
 // __ Validation Layers __
-typedef struct {
-    VkLayerProperties* items;
-    uint32_t count;
-    size_t capacity;
-} AvailableLayers;
-
-typedef struct {
-    const char** items;
-    size_t count;
-    size_t capacity;
-} RequiredLayers;
+static const char* validationLayers[] = {"VK_LAYER_KHRONOS_validation"};
+const int preLayerCount = 1;
 
 // forward declared stuff
-void populateLayers(RequiredLayers* requiredLayers);
 void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT* debugInfo);
-int checkValidationLayerSupport(RequiredLayers* requiredLayers);
+int checkValidationLayerSupport(vector* requiredLayers);
 
 // main logic
 void createInstance(AppContext* appContext) {
-    RequiredLayers validationLayers = {};
-    populateLayers(&validationLayers);
+    vector requiredLayers = {};
+    vector_init(&requiredLayers, sizeof(char));
+    for (int i = 0; i < preLayerCount; ++i) {
+        vector_append(&requiredLayers, validationLayers[i]);
+    }
+
     if (enableValidationLayers &&
-        !checkValidationLayerSupport(&validationLayers)) {
+        !checkValidationLayerSupport(&requiredLayers)) {
         appContext->fp_errBack(ILY_FAILED_TO_ENABLE_VALIDATION_LAYERS);
     }
 
@@ -53,13 +48,14 @@ void createInstance(AppContext* appContext) {
 
     createInfo.enabledExtensionCount = glfwExtensionCount;
     createInfo.ppEnabledExtensionNames = glfwExtensions;
+
     VkDebugUtilsMessengerCreateInfoEXT debugInfo = {};
     populateDebugMessengerCreateInfo(&debugInfo);
     createInfo.pNext = &debugInfo;
 
     if (enableValidationLayers) {
-        createInfo.enabledLayerCount = (uint32_t)validationLayers.count;
-        createInfo.ppEnabledLayerNames = validationLayers.items;
+        createInfo.enabledLayerCount = requiredLayers.count;
+        createInfo.ppEnabledLayerNames = (const char* const*)requiredLayers.items;
     } else {
         createInfo.enabledLayerCount = 0;
     }
@@ -71,46 +67,31 @@ void createInstance(AppContext* appContext) {
     };
 }
 
-int checkValidationLayerSupport(RequiredLayers* requiredLayers) {
-    AvailableLayers availableLayers = {0};
-    vkEnumerateInstanceLayerProperties(&availableLayers.count, NULL);
+int checkValidationLayerSupport(vector* requiredLayers) {
+    uint32_t layerCount = 0;
+    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+    VkLayerProperties layers[layerCount];
 
-    availableLayers.items = (VkLayerProperties*)malloc(sizeof(VkLayerProperties) * availableLayers.count);
-    if (!availableLayers.items) {
-        fprintf(stderr, "Failed to allocate memory for layer names.\n");
-        return 0;
-    }
-
-    vkEnumerateInstanceLayerProperties(&availableLayers.count, availableLayers.items);
+    vkEnumerateInstanceLayerProperties(&layerCount, layers);
     // Check all the required layers are in the available layers
     for (size_t i = 0; i < requiredLayers->count; ++i) {
         int layerFound = 0;
 
-        for (size_t j = 0; j < availableLayers.count; ++j) {
-            if (strcmp(requiredLayers->items[i], availableLayers.items[j].layerName) == 0) {
+        for (size_t j = 0; j < layerCount; ++j) {
+            const char** pRequiredLayerNames = (const char**)(requiredLayers->items);
+            const char* requiredLayerName = *pRequiredLayerNames;
+
+            if (strcmp(requiredLayerName, layers[j].layerName) == 0) {
                 layerFound = 1;
                 break;
             }
         }
 
         if (layerFound == 0) {
-            free(availableLayers.items);
             return 0;
         }
     }
-
-    free(availableLayers.items);
     return 1;
-}
-
-void populateLayers(RequiredLayers* requiredLayers) {
-    // Honestly just going to hard code the desired layers in here.
-    // at first I was passing in the args but theres no point
-    static const char* validationLayers[] = {"VK_LAYER_KHRONOS_validation"};
-    // build required layers struct
-    requiredLayers->count = 1;
-    requiredLayers->capacity = 1;
-    requiredLayers->items = validationLayers;
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -120,7 +101,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     fprintf(stderr, "Validation layer: %s\n", pCallbackData->pMessage);
     return VK_FALSE;
 }
-
 
 void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT* debugCreateInfo) {
     debugCreateInfo->sType =
