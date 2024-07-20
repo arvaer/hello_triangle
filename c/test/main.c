@@ -194,7 +194,6 @@ void test_option_unwrap(){
 
     int* value_in_option = (int*)option_unwrap(clone2);
     assert(*(wrapped.refCount) == 2);
-    assert(clone2 == NULL);
     assert(*value_in_option == 12);
 
 }

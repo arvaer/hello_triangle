@@ -10,8 +10,23 @@
       "src/main.o",
       "src/main.c"
     ],
-    "directory": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c",
-    "file": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c/src/main.c",
-    "output": "/home/michael/Documents/Projects/Vulkan/hello_triangle/c/src/main.o"
+    "directory": "/home/jupi/learning/vulkan/c",
+    "file": "/home/jupi/learning/vulkan/c/src/main.c",
+    "output": "/home/jupi/learning/vulkan/c/src/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-g",
+      "-gdwarf-4",
+      "-Ilib",
+      "-c",
+      "-o",
+      "src/device_context.o",
+      "src/device_context.c"
+    ],
+    "directory": "/home/jupi/learning/vulkan/c",
+    "file": "/home/jupi/learning/vulkan/c/src/device_context.c",
+    "output": "/home/jupi/learning/vulkan/c/src/device_context.o"
   }
 ]

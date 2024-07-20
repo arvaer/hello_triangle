@@ -1,5 +1,6 @@
 #ifndef ILY_DEVICE_CONTEXT
 #define ILY_DEVICE_CONTEXT
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -76,17 +77,17 @@ size_t isDeviceSuitable(AppContext* appContext, VkPhysicalDevice device) {
 }
 
 QueueFamilyIndices findQueueFamilies(AppContext* appContext, VkPhysicalDevice device) {
-    QueueFamilies queuefamilies = {};
-    QueueFamilyIndices indices = {.graphicsFamily = {.isPresent = 0, .value = 0}, .presentFamily = {.isPresent = 0, .value = 0}};
+    QueueFamilyIndices indices = {};
+    uint32_t queueFamilyCount;
     VkBool32 presentSupport = false;
 
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queuefamilies.count, nullptr);
-    queuefamilies.capacity = queuefamilies.count * 2;
-    queuefamilies.items = (VkQueueFamilyProperties*)malloc(queuefamilies.count * sizeof(VkQueueFamilyProperties));
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+    VkQueueFamilyProperties queueFamilies[queueFamilyCount];
 
-    vkGetPhysicalDeviceQueueFamilyProperties(device, &queuefamilies.count, queuefamilies.items);
-    for (size_t i = 0; i < queuefamilies.count; ++i) {
-        VkQueueFamilyProperties targetFamily = queuefamilies.items[i];
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies);
+
+    for (size_t i = 0; i < queueFamilyCount; ++i) {
+        VkQueueFamilyProperties targetFamily = queueFamilies[i];
         vkGetPhysicalDeviceSurfaceSupportKHR(device, i, appContext->surface, &presentSupport);
         if (targetFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
             option some = option_wrap(&i, sizeof(i));;
@@ -98,7 +99,6 @@ QueueFamilyIndices findQueueFamilies(AppContext* appContext, VkPhysicalDevice de
             indices.presentFamily = some;
         }
     }
-    free(queuefamilies.items);
     return indices;
 }
 
@@ -119,15 +119,20 @@ void createLogicalDevice(AppContext* appContext) {
         return;
     }
 
+    uint32_t* pGraphicsFamily = (uint32_t*)option_unwrap(&indices.graphicsFamily);
+    uint32_t* pPresentFamily = (uint32_t*)option_unwrap(&indices.presentFamily);
+    uint32_t graphicsFamilyIndex = *pGraphicsFamily;
+    uint32_t presentFamilyIndex = *pPresentFamily;
+
     // Graphics queue creation info
     queueCreateInfos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfos[0].queueFamilyIndex = indices.graphicsFamily.value;
+    queueCreateInfos[0].queueFamilyIndex = graphicsFamilyIndex;
     queueCreateInfos[0].queueCount = 1;
     queueCreateInfos[0].pQueuePriorities = &queuePriority;
 
     // Present queue creation info
     queueCreateInfos[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfos[1].queueFamilyIndex = indices.presentFamily.value;
+    queueCreateInfos[1].queueFamilyIndex = presentFamilyIndex;
     queueCreateInfos[1].queueCount = 1;
     queueCreateInfos[1].pQueuePriorities = &queuePriority;
 
@@ -139,11 +144,8 @@ void createLogicalDevice(AppContext* appContext) {
 
     // Swapchain enabling
     // once again just hardcoding this for the sake of completing the tutorial
-    ExtensionNames extensions = {.count = 1, .capacity = 5};
-    extensions.items = (const char**)malloc(extensions.count * sizeof(const char**));
-    extensions.items[0] = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
-    createInfo.enabledExtensionCount = extensions.count;
-    createInfo.ppEnabledExtensionNames = extensions.items;
+    createInfo.enabledExtensionCount = reqExtensionCount;
+    createInfo.ppEnabledExtensionNames = requiredExtensions;
 
     // Create the logical devic
     if (vkCreateDevice(appContext->physicalDevice, &createInfo, nullptr, &appContext->logicalDevice) != VK_SUCCESS) {
@@ -152,8 +154,8 @@ void createLogicalDevice(AppContext* appContext) {
     }
 
     // Get the device queues
-    vkGetDeviceQueue(appContext->logicalDevice, indices.graphicsFamily.value, 0, &appContext->graphicsQueue);
-    vkGetDeviceQueue(appContext->logicalDevice, indices.presentFamily.value, 0, &appContext->presentQueue);
+    vkGetDeviceQueue(appContext->logicalDevice, graphicsFamilyIndex, 0, &appContext->graphicsQueue);
+    vkGetDeviceQueue(appContext->logicalDevice, presentFamilyIndex, 0, &appContext->presentQueue);
 }
 
 #endif /* ifndef ILY_DEVICE_CONTEXT */
