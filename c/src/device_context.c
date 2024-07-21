@@ -90,13 +90,13 @@ QueueFamilyIndices findQueueFamilies(AppContext* appContext, VkPhysicalDevice de
         VkQueueFamilyProperties targetFamily = queueFamilies[i];
         vkGetPhysicalDeviceSurfaceSupportKHR(device, i, appContext->surface, &presentSupport);
         if (targetFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-            option some = option_wrap(&i, sizeof(i));;
-            indices.graphicsFamily = some;
+            option some1 = option_wrap(&i, sizeof(i));;
+            indices.graphicsFamily = some1;
         }
 
         if (presentSupport) {
-            option some = option_wrap(&i, sizeof(i));;
-            indices.presentFamily = some;
+            option some2 = option_wrap(&i, sizeof(i));;
+            indices.presentFamily = some2;
         }
     }
     return indices;

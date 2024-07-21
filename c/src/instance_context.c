@@ -10,22 +10,17 @@
 
 // __ Validation Layers __
 static const char* validationLayers[] = {"VK_LAYER_KHRONOS_validation"};
-const int preLayerCount = 1;
+const size_t preLayerCount = 1;
 
 // forward declared stuff
 void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT* debugInfo);
-int checkValidationLayerSupport(vector* requiredLayers);
+int checkValidationLayerSupport(const char** requiredLayers, size_t layerCount);
 
 // main logic
 void createInstance(AppContext* appContext) {
-    vector requiredLayers = {};
-    vector_init(&requiredLayers, sizeof(char));
-    for (int i = 0; i < preLayerCount; ++i) {
-        vector_append(&requiredLayers, validationLayers[i]);
-    }
 
     if (enableValidationLayers &&
-        !checkValidationLayerSupport(&requiredLayers)) {
+        !checkValidationLayerSupport(validationLayers, preLayerCount)) {
         appContext->fp_errBack(ILY_FAILED_TO_ENABLE_VALIDATION_LAYERS);
     }
 
@@ -54,8 +49,8 @@ void createInstance(AppContext* appContext) {
     createInfo.pNext = &debugInfo;
 
     if (enableValidationLayers) {
-        createInfo.enabledLayerCount = requiredLayers.count;
-        createInfo.ppEnabledLayerNames = (const char* const*)requiredLayers.items;
+        createInfo.enabledLayerCount = preLayerCount;
+        createInfo.ppEnabledLayerNames = validationLayers;
     } else {
         createInfo.enabledLayerCount = 0;
     }
@@ -67,19 +62,17 @@ void createInstance(AppContext* appContext) {
     };
 }
 
-int checkValidationLayerSupport(vector* requiredLayers) {
+int checkValidationLayerSupport(const char** requiredLayers, size_t preLayerCount) {
     uint32_t layerCount = 0;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
     VkLayerProperties layers[layerCount];
 
     vkEnumerateInstanceLayerProperties(&layerCount, layers);
     // Check all the required layers are in the available layers
-    for (size_t i = 0; i < requiredLayers->count; ++i) {
+    for (size_t i = 0; i < preLayerCount; ++i) {
         int layerFound = 0;
-
         for (size_t j = 0; j < layerCount; ++j) {
-            const char** pRequiredLayerNames = (const char**)(requiredLayers->items);
-            const char* requiredLayerName = *pRequiredLayerNames;
+            const char* requiredLayerName = requiredLayers[i];
 
             if (strcmp(requiredLayerName, layers[j].layerName) == 0) {
                 layerFound = 1;
