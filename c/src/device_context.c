@@ -79,7 +79,6 @@ size_t isDeviceSuitable(AppContext* appContext, VkPhysicalDevice device) {
 QueueFamilyIndices findQueueFamilies(AppContext* appContext, VkPhysicalDevice device) {
     QueueFamilyIndices indices = {};
     uint32_t queueFamilyCount;
-    VkBool32 presentSupport = false;
 
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
     VkQueueFamilyProperties queueFamilies[queueFamilyCount];
@@ -88,22 +87,31 @@ QueueFamilyIndices findQueueFamilies(AppContext* appContext, VkPhysicalDevice de
 
     for (size_t i = 0; i < queueFamilyCount; ++i) {
         VkQueueFamilyProperties targetFamily = queueFamilies[i];
-        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, appContext->surface, &presentSupport);
         if (targetFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-            option some1 = option_wrap(&i, sizeof(i));;
+            option some1 = option_wrap(&i, sizeof(i));
             indices.graphicsFamily = some1;
         }
 
+        VkBool32 presentSupport = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, appContext->surface, &presentSupport);
         if (presentSupport) {
-            option some2 = option_wrap(&i, sizeof(i));;
+            option some2 = option_wrap(&i, sizeof(i));
             indices.presentFamily = some2;
+        }
+
+        if (indices.graphicsFamily.isPresent && indices.presentFamily.isPresent) {
+            break;
         }
     }
     return indices;
 }
 
+
+
+
 void createLogicalDevice(AppContext* appContext) {
     QueueFamilyIndices indices = findQueueFamilies(appContext, appContext->physicalDevice);
+
     VkDeviceQueueCreateInfo queueCreateInfos[2]{};
     VkPhysicalDeviceFeatures deviceFeatures{};
     VkDeviceCreateInfo createInfo{};
@@ -124,23 +132,27 @@ void createLogicalDevice(AppContext* appContext) {
     uint32_t graphicsFamilyIndex = *pGraphicsFamily;
     uint32_t presentFamilyIndex = *pPresentFamily;
 
+    createInfo.queueCreateInfoCount = 1;
     // Graphics queue creation info
     queueCreateInfos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
     queueCreateInfos[0].queueFamilyIndex = graphicsFamilyIndex;
     queueCreateInfos[0].queueCount = 1;
     queueCreateInfos[0].pQueuePriorities = &queuePriority;
 
-    // Present queue creation info
-    queueCreateInfos[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfos[1].queueFamilyIndex = presentFamilyIndex;
-    queueCreateInfos[1].queueCount = 1;
-    queueCreateInfos[1].pQueuePriorities = &queuePriority;
+    if (presentFamilyIndex != graphicsFamilyIndex){
+        // Present queue creation info
+        queueCreateInfos[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfos[1].queueFamilyIndex = presentFamilyIndex;
+        queueCreateInfos[1].queueCount = 1;
+        queueCreateInfos[1].pQueuePriorities = &queuePriority;
+        createInfo.queueCreateInfoCount = 2;
+
+    }
 
     // Device creation info
-    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    createInfo.queueCreateInfoCount = 2;
     createInfo.pQueueCreateInfos = queueCreateInfos;
     createInfo.pEnabledFeatures = &deviceFeatures;
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
     // Swapchain enabling
     // once again just hardcoding this for the sake of completing the tutorial
