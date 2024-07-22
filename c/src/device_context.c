@@ -59,7 +59,7 @@ size_t checkDeviceExtensionSupport(VkPhysicalDevice device, const char* required
     return 0;
 }
 
-SwapChainSupportDetails querySwapChainSupport(AppContext* appContext, VkPhysicalDevice device){
+SwapChainSupportDetails querySwapChainSupport(AppContext* appContext, VkPhysicalDevice device) {
     SwapChainSupportDetails details;
     vector_init(&details.formats, sizeof(VkSurfaceFormatKHR*));
     vector_init(&details.presentModes, sizeof(VkPresentModeKHR*));
@@ -67,20 +67,20 @@ SwapChainSupportDetails querySwapChainSupport(AppContext* appContext, VkPhysical
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, appContext->surface, &details.capabilities);
     uint32_t formatCount;
     vkGetPhysicalDeviceSurfaceFormatsKHR(device, appContext->surface, &formatCount, nullptr);
-    if (formatCount != 0){
+    if (formatCount != 0) {
         VkSurfaceFormatKHR deviceFormats[formatCount];
         vkGetPhysicalDeviceSurfaceFormatsKHR(device, appContext->surface, &formatCount, deviceFormats);
-        for (int i = 0; i < formatCount; ++i){
+        for (int i = 0; i < formatCount; ++i) {
             vector_append(&details.formats, &deviceFormats[i]);
         }
     }
 
     uint32_t presentModeCount;
     vkGetPhysicalDeviceSurfacePresentModesKHR(device, appContext->surface, &presentModeCount, nullptr);
-    if (presentModeCount != 0){
+    if (presentModeCount != 0) {
         VkPresentModeKHR presentModes[presentModeCount];
         vkGetPhysicalDeviceSurfacePresentModesKHR(device, appContext->surface, &presentModeCount, presentModes);
-        for (int i = 0; i < presentModeCount; ++i){
+        for (int i = 0; i < presentModeCount; ++i) {
             vector_append(&details.presentModes, &presentModes[i]);
         }
     }
@@ -99,7 +99,7 @@ size_t isDeviceSuitable(AppContext* appContext, VkPhysicalDevice device) {
     for (int i = 0; i < reqExtensionCount; ++i) {
         int swapChainAdequate = 0;
         int extensionSupported = checkDeviceExtensionSupport(device, requiredExtensions[i]);
-        if (extensionSupported){
+        if (extensionSupported) {
             SwapChainSupportDetails details = querySwapChainSupport(appContext, device);
             swapChainAdequate = !vector_empty(&details.formats) && !vector_empty(&details.presentModes);
         }

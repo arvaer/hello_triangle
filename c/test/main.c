@@ -137,6 +137,38 @@ void test_vector_remove(){
 
 }
 
+void test_vector_empty(){
+    vector test_vector;
+    size_t test_size = sizeof(int);
+
+    int expected_removed_item = 2;
+    int expected_items[3] = {1, 3};
+    uint32_t expected_count = 2;
+    size_t expected_capacity = 5;
+    size_t expected_size = sizeof(int);
+
+    size_t result = vector_init(&test_vector, sizeof(int));
+    int item_1 = 1;
+
+    assert(vector_empty(&test_vector));
+
+    vector_append(&test_vector, &item_1);
+
+    assert(!vector_empty(&test_vector));
+
+    int* p_removed_item = (int*)vector_remove(&test_vector, 1);
+    int removed_item = *p_removed_item;
+    assert(removed_item == expected_removed_item);
+    assert(vector_empty(&test_vector));
+
+
+    vector_free(&test_vector);
+    assert(test_vector.items == NULL);
+
+}
+
+
+
 
 void test_option_wrap(){
     int test_item = 12;
