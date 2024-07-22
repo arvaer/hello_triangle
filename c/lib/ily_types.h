@@ -20,6 +20,7 @@ typedef struct {
 int vector_init(vector* vector, const size_t itemSize);
 void vector_free(vector* vector);
 int vector_append(vector* vector, const void* item);
+int vector_empty(vector* vector);
 void* vector_get(vector* vector, const size_t index);
 /**
  * this function removes an item from the vector at the specified index and

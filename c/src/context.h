@@ -12,7 +12,6 @@ const int enableValidationLayers = 0;
 const size_t enableValidationLayers = 1;
 #endif
 
-
 typedef struct AppContext {
     GLFWwindow* window;
     VkInstance instance;
@@ -31,10 +30,10 @@ typedef struct {
 } QueueFamilyIndices;
 
 typedef struct {
-    const char** items;
-    uint32_t count;
-    uint32_t capacity;
-} ExtensionNames;
+    VkSurfaceCapabilitiesKHR capabilities;
+    vector formats;
+    vector presentModes;
+} SwapChainSupportDetails;
 
 void createInstance(AppContext* appContext);
 void setupDebugMessenger(AppContext* appContext);

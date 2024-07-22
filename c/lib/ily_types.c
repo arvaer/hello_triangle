@@ -1,5 +1,5 @@
 #include "ily_types.h"
-#include <cstring>
+#include <string.h>
 #include <stdlib.h>
 
 int vector_init(vector* vector, const size_t itemSize) {
@@ -62,6 +62,13 @@ void vector_free(vector* vector) {
     vector->items = NULL;
     vector->count = 0;
     vector->capacity = 0;
+}
+
+int vector_empty(vector* vector) {
+    if(vector && vector->items != NULL && vector->count > 0){
+        return 0;
+    }
+    return 1;
 }
 
 option option_wrap(const void* item, const size_t itemSize) {
