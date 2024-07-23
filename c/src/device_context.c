@@ -296,8 +296,11 @@ void createSwapchain(AppContext* appContext) {
 
     appContext->swapchainContext.swapchainImageFormat = surfaceFormat.format;
     appContext->swapchainContext.swapchainExtent = extent2d;
+}
 
-
+void createImageViews(AppContext* appContext) {
+    SwapchainContext swapchainContext = appContext->swapchainContext;
+    vector images = swapchainContext.swapchainImages;
 }
 
 #endif /* ifndef ILY_DEVICE_CONTEXT */

@@ -14,9 +14,10 @@ const size_t enableValidationLayers = 1;
 
 typedef struct SwapchainContext {
     VkSwapchainKHR swapchain;
-    vector swapchainImages;
     VkFormat swapchainImageFormat;
     VkExtent2D swapchainExtent;
+    vector swapchainImages;
+    vector swapchainImageViews;
 } SwapchainContext;
 
 typedef struct AppContext {
@@ -49,6 +50,7 @@ void pickPhysicalDevice(AppContext* appContext);
 void createLogicalDevice(AppContext* appContext);
 void createSurface(AppContext* appContext);
 void createSwapchain(AppContext* appContext);
+void createImageViews(AppContext* appContext);
 
 QueueFamilyIndices findQueueFamilies(AppContext* appContext, VkPhysicalDevice device);
 

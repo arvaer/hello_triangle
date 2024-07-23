@@ -33,6 +33,7 @@ void initVulkan(AppContext* appContext) {
     pickPhysicalDevice(appContext);
     createLogicalDevice(appContext);
     createSwapchain(appContext);
+    createImageViews(appContext);
 }
 
 void mainLoop(AppContext* appContext) {
