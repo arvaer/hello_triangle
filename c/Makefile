@@ -40,7 +40,7 @@ Shaders:
 	glslc shaders/shader.vert -o shaders/out/vert.spv
 	glslc shaders/shader.frag -o shaders/out/frag.spv
 
-.PHONY: all run clean clean_test clean_all memory_layout struct_layout test
+.PHONY: all run clean memory_layout struct_layout test
 
 all: Vulkan Shaders
 	./Vulkan
@@ -52,10 +52,8 @@ test: TestLib
 	./Test
 
 clean:
-	rm -f Vulkan $(OBJECTS)
-
-clean_test:
-	rm -f ./Test $(LIB_TEST_OBJECTS)
+	rm -f Vulkan $(OBJECTS) Test $(LIB_TEST_OBJECTS)
+	rm -f shaders/out
 
 clean_all: clean clean_test
 	rm -f shaders/out

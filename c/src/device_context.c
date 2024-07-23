@@ -1,5 +1,6 @@
 #ifndef ILY_DEVICE_CONTEXT
 #define ILY_DEVICE_CONTEXT
+#include <GLFW/glfw3.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,6 +60,46 @@ size_t checkDeviceExtensionSupport(VkPhysicalDevice device, const char* required
     return 0;
 }
 
+VkSurfaceFormatKHR chooseSwapSurfaceFormat(vector* availableFormats) {
+    for (size_t i = 0; i < availableFormats->count; ++i) {
+        VkSurfaceFormatKHR* format = (VkSurfaceFormatKHR*)vector_get(availableFormats, i);
+        if (format->format == VK_FORMAT_B8G8R8_SRGB && format->colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+            return *format;
+        }
+    }
+
+    VkSurfaceFormatKHR* format = (VkSurfaceFormatKHR*)vector_get(availableFormats, 0);
+    return *format;
+}
+
+VkPresentModeKHR chooseSwapPresentMode(vector* availablePresentModes) {
+    for (size_t i = 0; i < availablePresentModes->count; ++i) {
+        VkPresentModeKHR presentMode = *(VkPresentModeKHR*)vector_get(availablePresentModes, i);
+        if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+            return presentMode;
+        }
+    }
+
+    return VK_PRESENT_MODE_FIFO_KHR;
+}
+
+VkExtent2D chooseSwapExtent(AppContext* appContext, const VkSurfaceCapabilitiesKHR* capabilities) {
+    if (capabilities->currentExtent.width != UINT32_MAX) {
+        return capabilities->currentExtent;
+    } else {
+        int width, height = 0;
+        int c_width = capabilities->currentExtent.width;
+        int c_height = capabilities->currentExtent.height;
+        glfwGetFramebufferSize(appContext->window, &width, &height);
+
+        VkExtent2D actualExtent = {
+          (uint32_t)((width < c_width) ? width : c_width),
+          (uint32_t)((height < c_height) ? height : c_height)};
+
+        return actualExtent;
+    }
+}
+
 SwapChainSupportDetails querySwapChainSupport(AppContext* appContext, VkPhysicalDevice device) {
     SwapChainSupportDetails details;
     vector_init(&details.formats, sizeof(VkSurfaceFormatKHR*));
@@ -70,7 +111,7 @@ SwapChainSupportDetails querySwapChainSupport(AppContext* appContext, VkPhysical
     if (formatCount != 0) {
         VkSurfaceFormatKHR deviceFormats[formatCount];
         vkGetPhysicalDeviceSurfaceFormatsKHR(device, appContext->surface, &formatCount, deviceFormats);
-        for (int i = 0; i < formatCount; ++i) {
+        for (size_t i = 0; i < formatCount; ++i) {
             vector_append(&details.formats, &deviceFormats[i]);
         }
     }
@@ -80,7 +121,7 @@ SwapChainSupportDetails querySwapChainSupport(AppContext* appContext, VkPhysical
     if (presentModeCount != 0) {
         VkPresentModeKHR presentModes[presentModeCount];
         vkGetPhysicalDeviceSurfacePresentModesKHR(device, appContext->surface, &presentModeCount, presentModes);
-        for (int i = 0; i < presentModeCount; ++i) {
+        for (size_t i = 0; i < presentModeCount; ++i) {
             vector_append(&details.presentModes, &presentModes[i]);
         }
     }
@@ -198,6 +239,65 @@ void createLogicalDevice(AppContext* appContext) {
     // Get the device queues
     vkGetDeviceQueue(appContext->logicalDevice, graphicsFamilyIndex, 0, &appContext->graphicsQueue);
     vkGetDeviceQueue(appContext->logicalDevice, presentFamilyIndex, 0, &appContext->presentQueue);
+}
+
+void createSwapchain(AppContext* appContext) {
+    SwapChainSupportDetails details = querySwapChainSupport(appContext, appContext->physicalDevice);
+
+    VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(&details.formats);
+    VkPresentModeKHR presentMode = chooseSwapPresentMode(&details.presentModes);
+    VkExtent2D extent2d = chooseSwapExtent(appContext, &details.capabilities);
+    uint32_t imageCount = details.capabilities.minImageCount + 1;
+
+    if (details.capabilities.maxImageCount > 0 && imageCount > details.capabilities.maxImageCount) {
+        imageCount = details.capabilities.maxImageCount;
+    }
+
+    VkSwapchainCreateInfoKHR createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    createInfo.surface = appContext->surface;
+    createInfo.minImageCount = imageCount;
+    createInfo.imageFormat = surfaceFormat.format;
+    createInfo.imageColorSpace = surfaceFormat.colorSpace;
+    createInfo.imageExtent = extent2d;
+    createInfo.imageArrayLayers = 1;
+    createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+    QueueFamilyIndices indices = findQueueFamilies(appContext, appContext->physicalDevice);
+    uint32_t graphicsFamily = *(uint32_t*)option_unwrap(&indices.graphicsFamily);
+    uint32_t presentFamily = *(uint32_t*)option_unwrap(&indices.presentFamily);
+    uint32_t queueFamilyIndices[] = {graphicsFamily, presentFamily};
+
+    if (graphicsFamily != presentFamily) {
+        createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+        createInfo.queueFamilyIndexCount = 2;
+        createInfo.pQueueFamilyIndices = queueFamilyIndices;
+    } else {
+        createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        createInfo.queueFamilyIndexCount = 0;     // Optional
+        createInfo.pQueueFamilyIndices = nullptr; // Optional
+    }
+    createInfo.preTransform = details.capabilities.currentTransform;
+    createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    createInfo.presentMode = presentMode;
+    createInfo.clipped = VK_TRUE;
+    createInfo.oldSwapchain = VK_NULL_HANDLE;
+
+    if (vkCreateSwapchainKHR(appContext->logicalDevice, &createInfo, nullptr, &appContext->swapchainContext.swapchain) != VK_SUCCESS) {
+        appContext->fp_errBack(ILY_FAILED_TO_CREATE_SWAPCHAIN);
+    }
+    vkGetSwapchainImagesKHR(appContext->logicalDevice, appContext->swapchainContext.swapchain, &imageCount, nullptr);
+    VkImage images[imageCount];
+    vector_init(&appContext->swapchainContext.swapchainImages, sizeof(VkImage*));
+    vkGetSwapchainImagesKHR(appContext->logicalDevice, appContext->swapchainContext.swapchain, &imageCount, images);
+    for (size_t i = 0; i < imageCount; ++i) {
+        vector_append(&appContext->swapchainContext.swapchainImages, &images[i]);
+    }
+
+    appContext->swapchainContext.swapchainImageFormat = surfaceFormat.format;
+    appContext->swapchainContext.swapchainExtent = extent2d;
+
+
 }
 
 #endif /* ifndef ILY_DEVICE_CONTEXT */

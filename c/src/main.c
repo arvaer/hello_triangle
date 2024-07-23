@@ -1,6 +1,5 @@
 #include "../lib/ily_errors.h"
 #include "context.h"
-#include "ily_types.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <vulkan/vulkan.h>
@@ -33,6 +32,7 @@ void initVulkan(AppContext* appContext) {
     createSurface(appContext);
     pickPhysicalDevice(appContext);
     createLogicalDevice(appContext);
+    createSwapchain(appContext);
 }
 
 void mainLoop(AppContext* appContext) {
@@ -42,6 +42,7 @@ void mainLoop(AppContext* appContext) {
 }
 
 void cleanup(AppContext* appContext) {
+    vkDestroySwapchainKHR(appContext->logicalDevice, appContext->swapchainContext.swapchain, nullptr);
     vkDestroySurfaceKHR(appContext->instance, appContext->surface, nullptr);
     vkDestroyDevice(appContext->logicalDevice, nullptr);
 
@@ -58,7 +59,6 @@ void initWindow(AppContext* appContext) {
     assert((*appContext).window != NULL);
 }
 
-
 int main() {
     AppContext* appContext = (AppContext*)malloc(sizeof(AppContext));
 
@@ -66,6 +66,10 @@ int main() {
     appContext->instance = NULL;
     appContext->physicalDevice = VK_NULL_HANDLE;
     appContext->logicalDevice = VK_NULL_HANDLE;
+    appContext->graphicsQueue = NULL;
+    appContext->presentQueue = NULL;
+    appContext->surface = NULL;
+    appContext->swapchainContext = {};
     appContext->debugMessenger = NULL;
     appContext->fp_errBack = &printError;
     run(appContext);

@@ -12,6 +12,13 @@ const int enableValidationLayers = 0;
 const size_t enableValidationLayers = 1;
 #endif
 
+typedef struct SwapchainContext {
+    VkSwapchainKHR swapchain;
+    vector swapchainImages;
+    VkFormat swapchainImageFormat;
+    VkExtent2D swapchainExtent;
+} SwapchainContext;
+
 typedef struct AppContext {
     GLFWwindow* window;
     VkInstance instance;
@@ -20,6 +27,7 @@ typedef struct AppContext {
     VkQueue graphicsQueue;
     VkQueue presentQueue;
     VkSurfaceKHR surface;
+    SwapchainContext swapchainContext;
     VkDebugUtilsMessengerEXT debugMessenger;
     ErrorCallback fp_errBack;
 } AppContext;
@@ -40,6 +48,7 @@ void setupDebugMessenger(AppContext* appContext);
 void pickPhysicalDevice(AppContext* appContext);
 void createLogicalDevice(AppContext* appContext);
 void createSurface(AppContext* appContext);
+void createSwapchain(AppContext* appContext);
 
 QueueFamilyIndices findQueueFamilies(AppContext* appContext, VkPhysicalDevice device);
 

@@ -28,6 +28,9 @@ void printError(ERROR error) {
     case ILY_FAILED_TO_CREATE_WINDOW_SURFACE:
         fprintf(stderr, "FAILED TO CREATE WINDOW SURFACE\n");
         break;
+    case ILY_FAILED_TO_CREATE_SWAPCHAIN:
+        fprintf(stderr, "FAILED TO CREATE SWAP CHAIN\n");
+        break;
     default:
         fprintf(stderr, "UNKNOWN ERROR\n");
         break;
