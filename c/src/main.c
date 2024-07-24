@@ -1,5 +1,6 @@
 #include "../lib/ily_errors.h"
 #include "context.h"
+#include "graphics_pipeline.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <vulkan/vulkan.h>
@@ -34,6 +35,7 @@ void initVulkan(AppContext* appContext) {
     createLogicalDevice(appContext);
     createSwapchain(appContext);
     createImageViews(appContext);
+    createGraphicsPipeline(appContext);
 }
 
 void mainLoop(AppContext* appContext) {
@@ -43,6 +45,11 @@ void mainLoop(AppContext* appContext) {
 }
 
 void cleanup(AppContext* appContext) {
+    for (size_t i = 0; i < appContext->swapchainContext.swapchainImageViews.count; ++i){
+       VkImageView imageView = *((VkImageView*)vector_get(&appContext->swapchainContext.swapchainImageViews, i));
+       vkDestroyImageView(appContext->logicalDevice, imageView, nullptr);
+    }
+
     vkDestroySwapchainKHR(appContext->logicalDevice, appContext->swapchainContext.swapchain, nullptr);
     vkDestroySurfaceKHR(appContext->instance, appContext->surface, nullptr);
     vkDestroyDevice(appContext->logicalDevice, nullptr);
