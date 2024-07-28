@@ -37,16 +37,18 @@ test/%.o: test/%.c
 
 Shaders:
 	mkdir -p shaders
+	mkdir -p shaders/out
 	glslc shaders/shader.vert -o shaders/out/vert.spv
 	glslc shaders/shader.frag -o shaders/out/frag.spv
 
-.PHONY: all run clean memory_layout struct_layout test
+.PHONY: all run shaders clean memory_layout struct_layout test
 
 all: Vulkan Shaders
 	./Vulkan
 
 run: Vulkan
 	./Vulkan
+shaders: Shaders
 
 test: TestLib
 	./Test
